@@ -4,7 +4,7 @@
   "description": "Método de Desenvolvimento Centrado no Usuário (MDCU) - Framework orquestrador para Agentes de Inteligência Artificial",
   "main": "bin/mdcu.js",
   "bin": {
-    "mdcu": "./bin/mdcu.js"
+    "mdcu": "bin/mdcu.js"
   },
   "files": [
     "bin/",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iago-leal/MDCU.git"
+    "url": "git+https://github.com/iago-leal/MDCU.git"
   },
   "keywords": [
     "ai",
