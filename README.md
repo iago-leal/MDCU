@@ -19,7 +19,7 @@ O MDCU é distribuído como um pacote executável para que a infraestrutura seja
 **1. Instale a Infraestrutura e as Skills:**
 No repositório em que você vai desenvolver o software, rode o instalador iterativo:
 ```bash
-npx mdcu install
+npx @iago-leal/mdcu install
 ```
 Ele vai automaticamente:
 1. Criar a pasta `.mdcu/` com as regras e templates da governança.

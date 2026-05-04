@@ -1,6 +1,9 @@
 {
-  "name": "mdcu",
+  "name": "@iago-leal/mdcu",
   "version": "1.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Método de Desenvolvimento Centrado no Usuário (MDCU) - Framework orquestrador para Agentes de Inteligência Artificial",
   "main": "bin/mdcu.js",
   "bin": {

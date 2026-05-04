@@ -14,4 +14,4 @@
 
 ## Links Rápidos
 - Repositório: https://github.com/iago-leal/MDCU
-- NPX: `npx mdcu install`
+- NPX: `npx @iago-leal/mdcu install` (scoped por anti-typosquatting do registry; ver [ADR 0004](../docs/adr/0004-rename-do-pacote-para-scoped-iago-leal-mdcu.md))
