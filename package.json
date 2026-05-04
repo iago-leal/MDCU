@@ -1,5 +1,5 @@
 {
-  "name": "mdcu-framework",
+  "name": "mdcu",
   "version": "1.0.0",
   "description": "Método de Desenvolvimento Centrado no Usuário (MDCU) - Framework orquestrador para Agentes de Inteligência Artificial",
   "main": "bin/mdcu.js",

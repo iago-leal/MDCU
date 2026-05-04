@@ -15,7 +15,7 @@ function showHelp() {
 MDCU Framework CLI
 
 Uso:
-  npx mdcu-framework <comando>
+  npx mdcu <comando>
 
 Comandos disponíveis:
   install-skills   Interativamente copia as skills para o seu Agente de IA local
@@ -52,7 +52,7 @@ async function installSkills() {
   console.log("    Instalação das Skills do MDCU");
   console.log("================================================\n");
   console.log("Para qual agente você deseja instalar as skills?");
-  console.log("1) Gemini Antigravity (~/.gemini/antigravity/skills)");
+  console.log("1) Gemini Antigravity (.agents/skills no projeto atual)");
   console.log("2) Claude Desktop (~/.claude/skills)");
   console.log("3) Custom (Digitar caminho manualmente)");
   console.log("4) Cancelar");
@@ -62,7 +62,7 @@ async function installSkills() {
     const homeDir = process.env.HOME || process.env.USERPROFILE;
 
     if (answer === '1') {
-      targetDir = path.join(homeDir, '.gemini/antigravity/skills');
+      targetDir = path.join(CWD, '.agents/skills');
       doCopySkills(targetDir);
       rl.close();
     } else if (answer === '2') {
@@ -93,7 +93,7 @@ function doCopySkills(targetDir) {
 
   copyDirRecursiveSync(sourceSkillsDir, targetDir);
   console.log("✅ Skills instaladas com sucesso!");
-  console.log("Agora no seu repositório de trabalho, rode 'npx mdcu-framework init' para configurar a infra.");
+  console.log("Agora no seu repositório de trabalho, rode 'npx mdcu init' para configurar a infra.");
 }
 
 function initProject() {

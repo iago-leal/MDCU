@@ -19,13 +19,13 @@ O MDCU é distribuído como um pacote executável para que a infraestrutura seja
 **1. Instale as Skills no seu Agente:**
 Rode o comando interativo para copiar as skills para o seu Claude ou Gemini:
 ```bash
-npx mdcu-framework install-skills
+npx mdcu install-skills
 ```
 
 **2. Inicialize a Infraestrutura no Projeto:**
 No repositório em que você vai desenvolver o software, inicialize as pastas `.mdcu/`:
 ```bash
-npx mdcu-framework init
+npx mdcu init
 ```
 
 **3. Inicie o fluxo:**
