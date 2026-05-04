@@ -18,8 +18,7 @@ Uso:
   npx mdcu <comando>
 
 Comandos disponíveis:
-  install-skills   Interativamente copia as skills para o seu Agente de IA local
-  init             Inicializa a infraestrutura do MDCU (.mdcu/) no projeto atual
+  install   Instala a infraestrutura do projeto (.mdcu/) e as skills no agente interativamente
   help             Exibe esta mensagem de ajuda
 `);
 }
@@ -37,7 +36,11 @@ function copyDirRecursiveSync(source, target) {
     if (fs.statSync(currentSource).isDirectory()) {
       copyDirRecursiveSync(currentSource, currentTarget);
     } else {
-      fs.copyFileSync(currentSource, currentTarget);
+      if (!fs.existsSync(currentTarget)) {
+        fs.copyFileSync(currentSource, currentTarget);
+      } else {
+        console.log(`    -> [reaproveitado] ${file}`);
+      }
     }
   }
 }
@@ -92,13 +95,13 @@ function doCopySkills(targetDir) {
   }
 
   copyDirRecursiveSync(sourceSkillsDir, targetDir);
-  console.log("✅ Skills instaladas com sucesso!");
-  console.log("Agora no seu repositório de trabalho, rode 'npx mdcu init' para configurar a infra.");
+  console.log("✅ Skills instaladas com sucesso no agente!");
+  console.log("\nInicie sua sessão clínica com: /mdcu no seu agente!");
 }
 
 function initProject() {
   console.log("================================================");
-  console.log("    Inicializando Infraestrutura do MDCU");
+  console.log("    Instalando MDCU (Projeto + Skills)");
   console.log("================================================\n");
   
   const targetMdcuDir = path.join(CWD, '.mdcu');
@@ -123,17 +126,17 @@ function initProject() {
   if (copiedAny) {
     console.log("\n✅ Infraestrutura copiada com sucesso para a pasta .mdcu/");
     console.log("\nNão se esqueça de adicionar .mdcu/ ao seu repositório, ou incluí-lo no .gitignore se preferir que cada dev rode o comando init localmente.");
-    console.log("\nInicie sua sessão clínica com: /mdcu no seu agente!");
   } else {
-    console.log("\nNenhum recurso foi copiado.");
+    console.log("\nNenhum recurso foi copiado para o projeto.");
   }
+
+  console.log("\nAgora vamos instalar as skills no seu Agente...\n");
+  installSkills();
 }
 
 if (!command || command === 'help') {
   showHelp();
-} else if (command === 'install-skills') {
-  installSkills();
-} else if (command === 'init') {
+} else if (command === 'install') {
   initProject();
 } else {
   console.error(`Comando desconhecido: ${command}`);

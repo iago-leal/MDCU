@@ -16,17 +16,14 @@ Inspirado no Método Clínico Centrado na Pessoa (MCCP), o MDCU orquestra sessõ
 
 O MDCU é distribuído como um pacote executável para que a infraestrutura seja montada de forma padronizada.
 
-**1. Instale as Skills no seu Agente:**
-Rode o comando interativo para copiar as skills para o seu Claude ou Gemini:
+**1. Instale a Infraestrutura e as Skills:**
+No repositório em que você vai desenvolver o software, rode o instalador iterativo:
 ```bash
-npx mdcu install-skills
+npx mdcu install
 ```
-
-**2. Inicialize a Infraestrutura no Projeto:**
-No repositório em que você vai desenvolver o software, inicialize as pastas `.mdcu/`:
-```bash
-npx mdcu init
-```
+Ele vai automaticamente:
+1. Criar a pasta `.mdcu/` com as regras e templates da governança.
+2. Perguntar qual o seu agente de IA para copiar os prompts das skills.
 
 **3. Inicie o fluxo:**
 No chat do seu agente, inicie uma sessão de desenvolvimento chamando `/mdcu`.
