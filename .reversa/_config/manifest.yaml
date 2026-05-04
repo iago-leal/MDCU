@@ -1,0 +1,22 @@
+installation:
+  version: 1.2.8
+  installDate: 2026-05-04T00:57:56.417Z
+  lastUpdated: 2026-05-04T00:57:56.417Z
+
+engines:
+  - claude-code
+  - antigravity
+
+agents:
+  - reversa
+  - reversa-scout
+  - reversa-archaeologist
+  - reversa-detective
+  - reversa-architect
+  - reversa-writer
+  - reversa-reviewer
+  - reversa-tracer
+  - reversa-visor
+  - reversa-data-master
+  - reversa-design-system
+  - reversa-reconstructor
