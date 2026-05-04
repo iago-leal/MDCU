@@ -1,13 +1,26 @@
 {
   "name": "mdcu",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Método de Desenvolvimento Centrado no Usuário (MDCU) - Framework orquestrador para Agentes de Inteligência Artificial",
   "main": "bin/mdcu.js",
   "bin": {
     "mdcu": "./bin/mdcu.js"
   },
+  "files": [
+    "bin/",
+    "scripts/",
+    "templates/",
+    "framework/",
+    "skills/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2"
   },
   "repository": {
     "type": "git",

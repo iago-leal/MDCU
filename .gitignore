@@ -3,3 +3,14 @@ __pycache__/
 *.pyc
 .cto/
 *.swp
+
+# Output local do `npx mdcu install` rodado dentro deste repo
+.claude/
+.mdcu/
+.agents/
+
+# Node deps
+node_modules/
+
+# Sessão MDCU em curso (transitória; deletada no fechamento)
+_mdcu.md

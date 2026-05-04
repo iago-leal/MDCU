@@ -2,144 +2,256 @@
 
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
-
-const args = process.argv.slice(2);
-const command = args[0];
+const pc = require('picocolors');
+const prompts = require('prompts');
 
 const PKG_ROOT = path.join(__dirname, '..');
 const CWD = process.cwd();
+const HOME = process.env.HOME || process.env.USERPROFILE || '';
+const PKG = require(path.join(PKG_ROOT, 'package.json'));
 
-function showHelp() {
-  console.log(`
-MDCU Framework CLI
+const ICON = {
+  ok: pc.green('✓'),
+  step: pc.cyan('→'),
+  skip: pc.yellow('↺'),
+  warn: pc.yellow('!'),
+  err: pc.red('✗'),
+};
 
-Uso:
-  npx mdcu <comando>
-
-Comandos disponíveis:
-  install   Instala a infraestrutura do projeto (.mdcu/) e as skills no agente interativamente
-  help             Exibe esta mensagem de ajuda
-`);
+function banner() {
+  const title = `MDCU Framework Installer  v${PKG.version}`;
+  const inner = ` ${title} `;
+  const line = '─'.repeat(inner.length);
+  console.log('');
+  console.log(pc.cyan(`┌${line}┐`));
+  console.log(pc.cyan('│') + pc.bold(pc.cyan(inner)) + pc.cyan('│'));
+  console.log(pc.cyan(`└${line}┘`));
+  console.log('');
 }
 
-function copyDirRecursiveSync(source, target) {
+function section(n, total, label) {
+  console.log('');
+  console.log(pc.dim(`[${n}/${total}]`) + ' ' + pc.bold(pc.magenta(label)));
+}
+
+function info(msg) {
+  console.log(`  ${ICON.step} ${msg}`);
+}
+
+function ok(msg) {
+  console.log(`  ${ICON.ok} ${pc.green(msg)}`);
+}
+
+function warn(msg) {
+  console.log(`  ${ICON.warn} ${pc.yellow(msg)}`);
+}
+
+function fail(msg) {
+  console.error(`  ${ICON.err} ${pc.red(msg)}`);
+}
+
+function copyDirRecursiveSync(source, target, stats = { copied: 0, reused: 0 }) {
   if (!fs.existsSync(target)) {
     fs.mkdirSync(target, { recursive: true });
   }
-
-  const files = fs.readdirSync(source);
-  for (const file of files) {
-    const currentSource = path.join(source, file);
-    const currentTarget = path.join(target, file);
-    
-    if (fs.statSync(currentSource).isDirectory()) {
-      copyDirRecursiveSync(currentSource, currentTarget);
+  for (const entry of fs.readdirSync(source)) {
+    const src = path.join(source, entry);
+    const dst = path.join(target, entry);
+    if (fs.statSync(src).isDirectory()) {
+      copyDirRecursiveSync(src, dst, stats);
+    } else if (!fs.existsSync(dst)) {
+      fs.copyFileSync(src, dst);
+      stats.copied += 1;
     } else {
-      if (!fs.existsSync(currentTarget)) {
-        fs.copyFileSync(currentSource, currentTarget);
-      } else {
-        console.log(`    -> [reaproveitado] ${file}`);
-      }
+      stats.reused += 1;
     }
   }
+  return stats;
 }
 
-async function installSkills() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  console.log("================================================");
-  console.log("    Instalação das Skills do MDCU");
-  console.log("================================================\n");
-  console.log("Para qual agente você deseja instalar as skills?");
-  console.log("1) Gemini Antigravity (.agents/skills no projeto atual)");
-  console.log("2) Claude Desktop (~/.claude/skills)");
-  console.log("3) Custom (Digitar caminho manualmente)");
-  console.log("4) Cancelar");
-  
-  rl.question("Escolha (1-4): ", (answer) => {
-    let targetDir = "";
-    const homeDir = process.env.HOME || process.env.USERPROFILE;
-
-    if (answer === '1') {
-      targetDir = path.join(CWD, '.agents/skills');
-      doCopySkills(targetDir);
-      rl.close();
-    } else if (answer === '2') {
-      targetDir = path.join(homeDir, '.claude/skills');
-      doCopySkills(targetDir);
-      rl.close();
-    } else if (answer === '3') {
-      rl.question("Digite o caminho absoluto: ", (customPath) => {
-        targetDir = customPath.replace(/^~/, homeDir);
-        doCopySkills(targetDir);
-        rl.close();
-      });
-    } else {
-      console.log("Cancelado.");
-      rl.close();
-    }
-  });
-}
-
-function doCopySkills(targetDir) {
-  console.log(`\nInstalando skills em: ${targetDir}`);
-  const sourceSkillsDir = path.join(PKG_ROOT, 'skills');
-  
-  if (!fs.existsSync(sourceSkillsDir)) {
-    console.error(`Erro: Pasta skills não encontrada no pacote (${sourceSkillsDir})`);
-    return;
-  }
-
-  copyDirRecursiveSync(sourceSkillsDir, targetDir);
-  console.log("✅ Skills instaladas com sucesso no agente!");
-  console.log("\nInicie sua sessão clínica com: /mdcu no seu agente!");
-}
-
-function initProject() {
-  console.log("================================================");
-  console.log("    Instalando MDCU (Projeto + Skills)");
-  console.log("================================================\n");
-  
+function installInfrastructure() {
+  section(1, 3, 'Infraestrutura .mdcu/');
   const targetMdcuDir = path.join(CWD, '.mdcu');
-  console.log(`Criando infraestrutura em: ${targetMdcuDir}`);
-  
+  info(`destino: ${pc.dim(targetMdcuDir)}`);
+
   const dirsToCopy = ['scripts', 'templates', 'framework'];
-  let copiedAny = false;
+  const totals = { copied: 0, reused: 0, missing: [] };
 
   for (const dir of dirsToCopy) {
     const sourceDir = path.join(PKG_ROOT, dir);
     const targetDir = path.join(targetMdcuDir, dir);
-    
-    if (fs.existsSync(sourceDir)) {
-      console.log(`-> Copiando ${dir}/...`);
-      copyDirRecursiveSync(sourceDir, targetDir);
-      copiedAny = true;
-    } else {
-      console.log(`-> Aviso: ${dir}/ não encontrado no pacote original.`);
+    if (!fs.existsSync(sourceDir)) {
+      totals.missing.push(dir);
+      warn(`${dir}/ ausente no pacote — pulado`);
+      continue;
     }
+    const stats = copyDirRecursiveSync(sourceDir, targetDir);
+    totals.copied += stats.copied;
+    totals.reused += stats.reused;
+    ok(`${dir}/ ${pc.dim(`(${stats.copied} novos, ${stats.reused} preservados)`)}`);
   }
-
-  if (copiedAny) {
-    console.log("\n✅ Infraestrutura copiada com sucesso para a pasta .mdcu/");
-    console.log("\nNão se esqueça de adicionar .mdcu/ ao seu repositório, ou incluí-lo no .gitignore se preferir que cada dev rode o comando init localmente.");
-  } else {
-    console.log("\nNenhum recurso foi copiado para o projeto.");
-  }
-
-  console.log("\nAgora vamos instalar as skills no seu Agente...\n");
-  installSkills();
+  return totals;
 }
 
-if (!command || command === 'help') {
-  showHelp();
-} else if (command === 'install') {
-  initProject();
-} else {
-  console.error(`Comando desconhecido: ${command}`);
+const ENGINES = [
+  {
+    id: 'antigravity',
+    label: 'Antigravity (Gemini)',
+    hint: '.agents/skills no workspace',
+    resolve: () => path.join(CWD, '.agents/skills'),
+  },
+  {
+    id: 'claude',
+    label: 'Claude Desktop',
+    hint: '~/.claude/skills',
+    resolve: () => path.join(HOME, '.claude/skills'),
+  },
+  {
+    id: 'custom',
+    label: 'Custom',
+    hint: 'digitar path manualmente',
+    resolve: null,
+  },
+];
+
+async function selectEngines() {
+  const response = await prompts({
+    type: 'multiselect',
+    name: 'engines',
+    message: 'Selecione uma ou mais engines',
+    instructions: false,
+    hint: 'use ↑↓, espaço para marcar, enter para confirmar',
+    choices: ENGINES.map((e) => ({
+      title: e.label,
+      description: e.hint,
+      value: e.id,
+    })),
+    min: 0,
+  });
+  return response.engines || [];
+}
+
+async function resolveTargets(selectedIds) {
+  const targets = [];
+  for (const id of selectedIds) {
+    const engine = ENGINES.find((e) => e.id === id);
+    if (!engine) continue;
+    if (engine.resolve) {
+      targets.push({ engine, target: engine.resolve() });
+    } else {
+      const { customPath } = await prompts({
+        type: 'text',
+        name: 'customPath',
+        message: 'Path absoluto para a engine custom',
+        validate: (v) => (v && v.trim().length > 0 ? true : 'Path obrigatório'),
+      });
+      if (!customPath) continue;
+      const resolved = customPath.replace(/^~/, HOME);
+      targets.push({ engine, target: resolved });
+    }
+  }
+  return targets;
+}
+
+function installSkillsToTargets(targets) {
+  const sourceSkillsDir = path.join(PKG_ROOT, 'skills');
+  if (!fs.existsSync(sourceSkillsDir)) {
+    fail(`Pasta skills/ não encontrada no pacote (${sourceSkillsDir})`);
+    return [];
+  }
+  const results = [];
+  for (const { engine, target } of targets) {
+    info(`${engine.label} ${pc.dim('→')} ${pc.dim(target)}`);
+    const stats = copyDirRecursiveSync(sourceSkillsDir, target);
+    ok(`${stats.copied} novos, ${stats.reused} preservados`);
+    results.push({ engine, target, ...stats });
+  }
+  return results;
+}
+
+function summary(infraStats, skillResults) {
+  section(3, 3, 'Resumo');
+  const rows = [];
+  rows.push({
+    label: 'Infraestrutura .mdcu/',
+    target: path.join(CWD, '.mdcu'),
+    copied: infraStats.copied,
+    reused: infraStats.reused,
+  });
+  for (const r of skillResults) {
+    rows.push({
+      label: r.engine.label,
+      target: r.target,
+      copied: r.copied,
+      reused: r.reused,
+    });
+  }
+
+  const labelWidth = Math.max(...rows.map((r) => r.label.length));
+  for (const r of rows) {
+    const pad = ' '.repeat(labelWidth - r.label.length);
+    const stat = `${ICON.ok} ${pc.green(String(r.copied))} novos  ${ICON.skip} ${pc.yellow(String(r.reused))} preservados`;
+    console.log(`  ${pc.bold(r.label)}${pad}  ${stat}`);
+    console.log(`  ${pc.dim(' '.repeat(labelWidth) + '  ' + r.target)}`);
+  }
+
+  if (infraStats.missing && infraStats.missing.length) {
+    console.log('');
+    warn(`pastas ausentes no pacote: ${infraStats.missing.join(', ')}`);
+  }
+
+  console.log('');
+  console.log(pc.green('  Pronto.') + ' Inicie sua sessão clínica com ' + pc.bold(pc.cyan('/mdcu')) + ' no seu agente.');
+  console.log('');
+}
+
+async function runInstall() {
+  banner();
+  const infraStats = installInfrastructure();
+
+  section(2, 3, 'Skills');
+  const selectedIds = await selectEngines();
+  if (!selectedIds.length) {
+    warn('nenhuma engine selecionada — etapa de skills pulada');
+    summary(infraStats, []);
+    return;
+  }
+  const targets = await resolveTargets(selectedIds);
+  const skillResults = installSkillsToTargets(targets);
+  summary(infraStats, skillResults);
+}
+
+function showHelp() {
+  console.log(`
+${pc.bold(pc.cyan('MDCU Framework CLI'))}  ${pc.dim(`v${PKG.version}`)}
+
+${pc.bold('Uso:')}
+  ${pc.cyan('npx mdcu')} <comando>
+
+${pc.bold('Comandos:')}
+  ${pc.green('install')}   Instala a infraestrutura .mdcu/ e as skills nas engines escolhidas
+  ${pc.green('help')}      Exibe esta mensagem
+`);
+}
+
+async function main() {
+  const command = process.argv[2];
+  if (!command || command === 'help' || command === '--help' || command === '-h') {
+    showHelp();
+    return;
+  }
+  if (command === 'install') {
+    try {
+      await runInstall();
+    } catch (e) {
+      fail(`Falha durante install: ${e.message}`);
+      process.exit(1);
+    }
+    return;
+  }
+  fail(`Comando desconhecido: ${command}`);
   showHelp();
   process.exit(1);
 }
+
+main();
