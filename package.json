@@ -1,0 +1,26 @@
+{
+  "name": "mdcu-framework",
+  "version": "1.0.0",
+  "description": "Método de Desenvolvimento Centrado no Usuário (MDCU) - Framework orquestrador para Agentes de Inteligência Artificial",
+  "main": "bin/mdcu.js",
+  "bin": {
+    "mdcu": "./bin/mdcu.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iago-leal/MDCU.git"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "claude",
+    "gemini",
+    "framework",
+    "mdcu"
+  ],
+  "author": "Iago Leal",
+  "license": "MIT"
+}

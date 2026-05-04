@@ -6,16 +6,29 @@ Inspirado no Método Clínico Centrado na Pessoa (MCCP), o MDCU orquestra sessõ
 
 ## O que tem aqui?
 
-- **`skills/`**: Contém as 7 skills executáveis do framework (`mdcu`, `vitruvius`, `cto`, `rsop`, `commit-soap`, `project-init`, `mdcu-seg`). Elas foram construídas para rodar nativamente em agentes baseados em IA (Claude, Gemini, etc). As skills usam as ferramentas do próprio agente (como File System e Terminal) para executar tudo.
-- **`framework/`**: O dicionário de dados, princípios, regras de domínio e máquinas de estado globais que regem o framework. (Principalmente para referência humana ou RAG).
-- **`docs/reconstruction-case-study/`**: O histórico e os artefatos de quando o MDCU foi inteiramente reconstruído "bottom-up" por IA.
+- **`skills/`**: Contém as 7 skills executáveis do framework (`mdcu`, `vitruvius`, `cto`, `rsop`, `commit-soap`, `project-init`, `mdcu-seg`). 
+- **`templates/`**: Artefatos de texto exigidos para formatação dos relatórios (SOAP, Architecture, etc).
+- **`framework/`**: Dicionário de dados, princípios e máquinas de estado globais.
+- **`scripts/`**: Ferramentas Python exigidas pelo componente `cto`.
+- **`docs/reconstruction-case-study/`**: Histórico e artefatos de quando o MDCU foi inteiramente mapeado e reconstruído por IA.
 
-## Como instalar e usar (100% Portátil)
+## Como instalar e usar (Via NPX)
 
-O MDCU é "Agent-Native". Ele não depende de scripts locais ou infraestrutura física instalada no seu projeto. A inteligência reside inteiramente nas skills.
+O MDCU é distribuído como um pacote executável para que a infraestrutura seja montada de forma padronizada.
 
-1. Copie o conteúdo das subpastas de `skills/` para a raiz de skills do seu agente hospedeiro (ex: `~/.gemini/antigravity/skills/` ou `~/.claude/skills/`).
-2. Digite `/project-init` no seu repositório de trabalho. O agente usará suas próprias ferramentas para criar o `ARCHITECTURE.md` e os arquivos de infraestrutura necessários (como a pasta `.cto/`).
-3. Inicie uma sessão de desenvolvimento chamando `/mdcu`.
+**1. Instale as Skills no seu Agente:**
+Rode o comando interativo para copiar as skills para o seu Claude ou Gemini:
+```bash
+npx mdcu-framework install-skills
+```
+
+**2. Inicialize a Infraestrutura no Projeto:**
+No repositório em que você vai desenvolver o software, inicialize as pastas `.mdcu/`:
+```bash
+npx mdcu-framework init
+```
+
+**3. Inicie o fluxo:**
+No chat do seu agente, inicie uma sessão de desenvolvimento chamando `/mdcu`.
 
 Consulte o arquivo `MANIFEST.md` para ver o mapa completo de comandos de invocação.
